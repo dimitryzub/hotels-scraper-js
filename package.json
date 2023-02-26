@@ -1,0 +1,40 @@
+{
+  "name": "hotels-scraper-js",
+  "version": "0.0.1",
+  "description": "Parser for Airbnb, Booking, Hotels.com in JavaScript. Sponsored by SerpApi.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimitryzub/hotels-scraper-js.git"
+  },
+  "keywords": [
+    "webscraping",
+    "hotels",
+    "scrape",
+    "hotels-scraper",
+    "hotels-parser",
+    "serpapi",
+    "airbnb",
+    "airbnb-scraper",
+    "booking",
+    "booking-scraper",
+    "hotels.com"
+  ],
+  "author": "https://github.com/Mykhailo-Zub",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dimitryzub/hotels-scraper-js/issues"
+  },
+  "homepage": "https://github.com/dimitryzub/hotels-scraper-js#readme",
+  "dependencies": {
+    "axios": "^1.3.4",
+    "puppeteer": "^19.7.2",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-stealth": "^2.11.1",
+    "user-agents": "^1.0.1295"
+  }
+}
