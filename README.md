@@ -1,11 +1,12 @@
 # 🏨Hotels Scraper
 
-Parser for [Airbnb](https://www.airbnb.com/), [Booking](https://www.booking.com/) (soon), [Hotels.com](https://hotels.com/)(soon) in JavaScript. Sponsored by SerpApi. [SerpApi](https://serpapi.com/).
+Parser for website hotels, all from the single package, in JavaScript. Sponsored by [SerpApi](https://serpapi.com/).
 
 Currently supports:
 
-- Airbnb;
-- other engines soon.
+- [Airbnb](https://www.airbnb.com/)
+- [Booking](https://www.booking.com/) (soon)
+- [Hotels.com](https://hotels.com/) (soon)
 
 ## Install
 
@@ -60,7 +61,8 @@ saveToJSON(data, path, filename);
 
 ## Results example
 
-Hotels results:
+<details>
+<summary>Hotels results</summary>
 
 ```json
 [
@@ -77,7 +79,10 @@ Hotels results:
 ]
 ```
 
-Hotel info result:
+</details>
+
+<details>
+<summary>Hotel info result</summary>
 
 ```json
 {
@@ -141,3 +146,5 @@ Hotel info result:
 }
 
 ```
+
+</details>
