@@ -9,7 +9,6 @@ const getBrowserInstance = async () => {
   const browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox", "--window-size=1600,900"],
-    executablePath: executablePath(),
   });
 
   const page = await browser.newPage();
