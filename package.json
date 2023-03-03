@@ -1,6 +1,6 @@
 {
   "name": "hotels-scraper-js",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "Parser for Airbnb, Booking, Hotels.com in JavaScript. Sponsored by SerpApi.",
   "main": "index.js",
   "type": "module",

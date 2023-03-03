@@ -18,6 +18,8 @@ npm i hotels-scraper-js
 
 ## In code usage
 
+📌Note: Only [ES modules](https://nodejs.org/api/esm.html) `import` statement is available.
+
 Import `airbnb` to your file:
 
 ```javascript
@@ -34,10 +36,10 @@ getHotelInfo(link[, currency[, reviewsLimit]])
 getFilters()
 ```
 
-- `category` - category code. You can get all available categories with their codes from `getFilters()` method;
-- `currency` - currency code. You can get all available currencies with their codes from `getFilters()` method;
-- `resultsLimit` - parameter defines the results amount you want to get. Must be a number or `Infinity` (use it if you want to get all results in the selected category);
-- `reviewsLimit` - parameter defines the reviews amount you want to get. Must be a number or `Infinity` (use it if you want to get all reviews).
+- `category` - category code. You can get all available categories with their codes from `getFilters()` method. You can use both "name" or "value";
+- `currency` - currency code. You can get all available currencies with their codes from `getFilters()` method. You can use both "name" or "value" ;
+- `resultsLimit` - parameter defines the results amount you want to get. Must be a number or `Infinity` (use it if you want to get all results in the selected category). Default - 20;
+- `reviewsLimit` - parameter defines the reviews amount you want to get. Must be a number or `Infinity` (use it if you want to get all reviews). Default - 10.
 
 ## Save results to JSON
 
@@ -46,18 +48,17 @@ Import `airbnb`, `saveToJSON` to your file:
 ```javascript
 import { airbnb, saveToJSON } from "hotels-scraper-js";
 
-airbnb.getHotels().then((hotels) => saveToJSON(hotels, "path-to-save", "filename"));
+airbnb.getHotels().then(saveToJSON);
 ```
 
 `saveToJSON` arguments:
 
 ```javascript
-saveToJSON(data, path, filename);
+saveToJSON(data, filename);
 ```
 
 - `data` - scraped results;
-- `path` - absolute path to save results (📌Note: directory for save must be exist);
-- `filename` - name of saving file.
+- `filename` - name of saving file. Default - "Airbnb results".
 
 ## Results example
 

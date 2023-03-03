@@ -33,8 +33,8 @@ const getHotelsInfo = async (page) => {
         distance: Array.from(el.querySelectorAll('[data-testid="listing-card-subtitle"]'))[0].textContent.trim(),
         dates: Array.from(el.querySelectorAll('[data-testid="listing-card-subtitle"]'))[1].textContent.trim(),
         price: {
-          currency: priceString.replace(/[\d|,]+/gm, "").replace(/\s/gm, ""),
-          value: parseFloat(priceString.match(/[\d|,]+/gm)[0].replace(",", ".")),
+          currency: priceString.replace(/[\d|,|.]+/gm, "").replace(/\s/gm, ""),
+          value: parseFloat(priceString.match(/[\d|,|.]+/gm)[0].replace(",", "")),
         },
         rating: parseFloat(el.querySelector("span[aria-label]")?.getAttribute("aria-label")) || "No rating",
         link: `https://www.airbnb.com${el.querySelector("a").getAttribute("href")}`,
@@ -46,31 +46,33 @@ const getHotelsInfo = async (page) => {
 const getAirbnbHotels = async (multiplierArgument, category, currency, resultsLimit = 20) => {
   multiplier = multiplierArgument;
   const { currencies, categories } = getAirbnbFilters();
-  const isValidCategory = category ? categories.some((el) => el.value === category) : true;
-  const isValidCurrency = currency ? currencies.some((el) => el.value.toLowerCase() === currency.toLowerCase()) : true;
-  if (!isValidCategory && !isValidCurrency) {
+  const parsedCategory = category ? categories.find((el) => el.value === category || el.name.toLowerCase() === category.toLowerCase()) : true;
+  const parsedCurrency = currency
+    ? currencies.find((el) => el.value.toLowerCase() === currency.toLowerCase() || el.name.toLowerCase() === currency.toLowerCase())
+    : true;
+  if (!parsedCategory && !parsedCurrency) {
     throw new Error(`Provided category "${category}" and currency "${currency}" are not valid. Use "getFilters" method to get available filters.`);
   }
-  if (!isValidCategory) {
+  if (!parsedCategory) {
     throw new Error(`Provided category "${category}" is not valid. Use "getFilters" method to get available filters.`);
   }
-  if (!isValidCurrency) {
+  if (!parsedCurrency) {
     throw new Error(`Provided currency "${currency}" is not valid. Use "getFilters" method to get available filters.`);
   }
-  const url = `https://www.airbnb.com/${isValidCategory ? `?category_tag=Tag:${category}` : ""}`;
+  const url = `https://www.airbnb.com/${category ? `?category_tag=Tag:${parsedCategory.value}` : ""}`;
 
   const { page, closeBrowser } = await getBrowserInstance();
 
   await page.goto(url);
   await page.waitForSelector("#site-content");
-  if (currency && isValidCurrency) {
+  if (currency && parsedCurrency) {
     await page.click("._19c5bku:nth-child(2)");
     await page.waitForTimeout(2000 * multiplier);
     await page.waitForSelector("._obr3yz");
     const selectedCurrencyIndex = await page.evaluate((currency) => {
       const allCurrencies = Array.from(document.querySelectorAll("._obr3yz"));
       return allCurrencies.findIndex((el) => el.querySelector("div:last-child").textContent.toLowerCase().includes(currency.toLowerCase()));
-    }, currency);
+    }, parsedCurrency.value);
     await page.click(`._obr3yz:nth-child(${selectedCurrencyIndex + 1})`);
     await page.waitForTimeout(3000 * multiplier);
     await page.waitForSelector("#site-content");

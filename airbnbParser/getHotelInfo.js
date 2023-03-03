@@ -31,10 +31,15 @@ const scrollPage = async (page, reviewsLimit) => {
 
 const getHotelInfo = async (page) => {
   return await page.evaluate(() => {
-    const priceString = document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] ._tyxjp1')?.textContent.trim();
-    const currency = priceString.replace(/[\d|,]+/gm, "").replace(/\s/gm, "");
+    const priceString = (
+      document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] ._tyxjp1') ||
+      document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] ._1y74zjx')
+    )?.textContent.trim();
+    const currency = priceString.replace(/[\d|,|.]+/gm, "").replace(/\s/gm, "");
+    const fiveNightPriceString = Array.from(document.querySelectorAll('[data-section-id="BOOK_IT_SIDEBAR"] ._1k4xcdh'))[0]?.textContent.trim();
     const cleaningPriceString = Array.from(document.querySelectorAll('[data-section-id="BOOK_IT_SIDEBAR"] ._1k4xcdh'))[1]?.textContent.trim();
     const airbnbgPriceString = Array.from(document.querySelectorAll('[data-section-id="BOOK_IT_SIDEBAR"] ._1k4xcdh'))[2]?.textContent.trim();
+    const totalPriceString = document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] ._1qs94rc')?.textContent.trim();
     return {
       name: document.querySelector("h1")?.textContent.trim(),
       shortDescription: document.querySelector("h2")?.textContent.trim(),
@@ -47,9 +52,11 @@ const getHotelInfo = async (page) => {
       })),
       price: {
         currency,
-        perNight: parseFloat(priceString?.match(/[\d|,]+/gm)[0].replace(",", ".")),
-        cleaningFee: parseFloat(cleaningPriceString?.match(/[\d|,]+/gm)[0].replace(",", ".")),
-        airbnbFee: parseFloat(airbnbgPriceString?.match(/[\d|,]+/gm)[0].replace(",", ".")),
+        perNight: parseFloat(priceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
+        fiveNights: parseFloat(fiveNightPriceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
+        cleaningFee: parseFloat(cleaningPriceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
+        airbnbFee: parseFloat(airbnbgPriceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
+        total: parseFloat(totalPriceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
       },
       description: document.querySelector('[data-section-id="DESCRIPTION_DEFAULT"] .ll4r2nl')?.textContent.trim(),
       sleepOptions: Array.from(document.querySelectorAll('[data-section-id="SLEEPING_ARRANGEMENT_DEFAULT"] ._c991cpe')).map((el) => ({
@@ -75,8 +82,10 @@ const getHotelInfo = async (page) => {
 const getAirbnbHotelInfo = async (multiplierArgument, link, currency, reviewsLimit = 10) => {
   multiplier = multiplierArgument;
   const { currencies } = getAirbnbFilters();
-  const isValidCurrency = currency ? currencies.some((el) => el.value.toLowerCase() === currency.toLowerCase()) : true;
-  if (!isValidCurrency) {
+  const parsedCurrency = currency
+    ? currencies.find((el) => el.value.toLowerCase() === currency.toLowerCase() || el.name.toLowerCase() === currency.toLowerCase())
+    : true;
+  if (!parsedCurrency) {
     throw new Error(`Provided currency "${currency}" is not valid. Use "getFilters" method to get available filters.`);
   }
 
@@ -90,7 +99,7 @@ const getAirbnbHotelInfo = async (multiplierArgument, link, currency, reviewsLim
     await page.click('[data-testid="modal-container"] [aria-label="Close"]');
     await page.waitForTimeout(2000 * multiplier);
   }
-  if (currency && isValidCurrency) {
+  if (currency && parsedCurrency) {
     const languageButton = Array.from(await page.$$("._ar9stc ._19c5bku"))[1];
     await languageButton.click();
     await page.waitForTimeout(2000 * multiplier);
@@ -98,7 +107,7 @@ const getAirbnbHotelInfo = async (multiplierArgument, link, currency, reviewsLim
     const selectedCurrencyIndex = await page.evaluate((currency) => {
       const allCurrencies = Array.from(document.querySelectorAll("._obr3yz"));
       return allCurrencies.findIndex((el) => el.querySelector("div:last-child").textContent.toLowerCase().includes(currency.toLowerCase()));
-    }, currency);
+    }, parsedCurrency.value);
     await page.click(`._obr3yz:nth-child(${selectedCurrencyIndex + 1})`);
     await page.waitForTimeout(3000 * multiplier);
     await page.waitForSelector("#site-content");
@@ -149,27 +158,40 @@ const getAirbnbHotelInfo = async (multiplierArgument, link, currency, reviewsLim
   await page.waitForTimeout(1000 * multiplier);
 
   //place reviews
-  await page.click('[data-section-id="REVIEWS_DEFAULT"] button');
-  await page.waitForTimeout(3000 * multiplier);
-  await scrollPage(page, reviewsLimit);
-  hotelInfo.reviewsInfo = await page.evaluate(() => {
-    const ratingArray = document.querySelector('[data-testid="modal-container"] h2').textContent.trim().split(/\s/);
-    console.log(ratingArray);
-    return {
-      rating: parseFloat(ratingArray[0]),
-      totalReviews: parseInt(ratingArray[2]),
-      reviews: Array.from(document.querySelectorAll('[data-testid="modal-container"] .r1are2x1')).map((el) => ({
-        name: el.querySelector("h3").textContent.trim(),
-        avatar: el.querySelector("a img")?.getAttribute("data-original-uri"),
-        userPage: `https://www.airbnb.com${el.querySelector("a")?.getAttribute("href")}`,
-        date: el.querySelector("li").textContent.trim(),
-        review: el.querySelector("span").textContent.trim(),
-      })),
-    };
-  });
-  hotelInfo.reviewsInfo.reviews = hotelInfo.reviewsInfo.reviews.filter((el, i) => i < reviewsLimit);
-  await page.click('[data-testid="modal-container"] [aria-label="Close"]');
-  await page.waitForTimeout(1000 * multiplier);
+  const isReviews = await page.$('[data-section-id="REVIEWS_DEFAULT"] button');
+  if (isReviews) {
+    await page.click('[data-section-id="REVIEWS_DEFAULT"] button');
+    await page.waitForTimeout(3000 * multiplier);
+    await scrollPage(page, reviewsLimit);
+    hotelInfo.reviewsInfo = await page.evaluate(() => {
+      const ratingArray = document.querySelector('[data-testid="modal-container"] h2').textContent.trim().split(/\s/);
+      console.log(ratingArray);
+      return {
+        totalReviews: parseInt(ratingArray[2]),
+        rating: {
+          total: parseFloat(ratingArray[0]),
+          cleanliness: parseFloat(Array.from(document.querySelectorAll('[data-testid="modal-container"] ._yorrb7h ._4oybiu'))[0]?.textContent.trim()),
+          accuracy: parseFloat(Array.from(document.querySelectorAll('[data-testid="modal-container"] ._yorrb7h ._4oybiu'))[1]?.textContent.trim()),
+          communication: parseFloat(
+            Array.from(document.querySelectorAll('[data-testid="modal-container"] ._yorrb7h ._4oybiu'))[2]?.textContent.trim()
+          ),
+          location: parseFloat(Array.from(document.querySelectorAll('[data-testid="modal-container"] ._yorrb7h ._4oybiu'))[3]?.textContent.trim()),
+          checkIn: parseFloat(Array.from(document.querySelectorAll('[data-testid="modal-container"] ._yorrb7h ._4oybiu'))[4]?.textContent.trim()),
+          value: parseFloat(Array.from(document.querySelectorAll('[data-testid="modal-container"] ._yorrb7h ._4oybiu'))[5]?.textContent.trim()),
+        },
+        reviews: Array.from(document.querySelectorAll('[data-testid="modal-container"] .r1are2x1')).map((el) => ({
+          name: el.querySelector("h3").textContent.trim(),
+          avatar: el.querySelector("a img")?.getAttribute("data-original-uri"),
+          userPage: `https://www.airbnb.com${el.querySelector("a")?.getAttribute("href")}`,
+          date: el.querySelector("li").textContent.trim(),
+          review: el.querySelector("span").textContent.trim(),
+        })),
+      };
+    });
+    hotelInfo.reviewsInfo.reviews = hotelInfo.reviewsInfo.reviews.filter((el, i) => i < reviewsLimit);
+    await page.click('[data-testid="modal-container"] [aria-label="Close"]');
+    await page.waitForTimeout(1000 * multiplier);
+  }
 
   await closeBrowser();
 
