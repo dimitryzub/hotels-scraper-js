@@ -5,7 +5,7 @@ Parser for website hotels, all from the single package, in JavaScript. Sponsored
 Currently supports:
 
 - [Airbnb](https://www.airbnb.com/)
-- [Booking](https://www.booking.com/) (soon)
+- [Booking](https://www.booking.com/)
 - [Hotels.com](https://hotels.com/) (soon)
 
 ## Install
@@ -20,12 +20,13 @@ npm i hotels-scraper-js
 
 📌Note: Only [ES modules](https://nodejs.org/api/esm.html) `import` statement is available.
 
-Import `airbnb` to your file:
+Import `airbnb` and/or `booking` to your file:
 
 ```javascript
-import { airbnb } from "hotels-scraper-js";
+import { airbnb, booking } from "hotels-scraper-js";
 
 airbnb.getHotels().then(console.log);
+booking.getHotels().then(console.log);
 ```
 
 `airbnb` available methods:
@@ -41,9 +42,30 @@ getFilters()
 - `resultsLimit` - parameter defines the results amount you want to get. Must be a number or `Infinity` (use it if you want to get all results in the selected category). Default - 20;
 - `reviewsLimit` - parameter defines the reviews amount you want to get. Must be a number or `Infinity` (use it if you want to get all reviews). Default - 10.
 
+`booking` available methods:
+
+```javascript
+getHotels(searchParams)
+getHotelInfo(link[, reviewsLimit])
+getFilters()
+```
+
+- `searchParams` - parameters for search:
+  - `filters` - an array with filter codes. You can get all available filters with their codes from `getFilters()` method. You can use both "name" or "value";
+  - `currency` - currency code. You can get all available currencies with their codes from `getFilters()` method. You can use both "name" or "value". Default - "USD";
+  - `resultsLimit` - parameter defines the results amount you want to get. Must be a number or `Infinity` (use it if you want to get all results in the selected category). Default - 35;
+  - `location` - location of hotels to search. Default - "Paris";
+  - `checkIn` - check-in date. Format - "2022-12-31", Default - today;
+  - `checkOut` - check-in date. Format - "2022-12-31", Default - tomorrow;
+  - `adults` - number of adult guests. Default - 2;
+  - `children` - number of child guests. Default - 0;
+  - `rooms` - number of rooms needed. Default - 1;
+  - `travelPurpose` - travel purpouse. Available "leisure" or "business". Default - "leisure";
+- `reviewsLimit` - parameter defines the reviews amount you want to get. Must be a number or `Infinity` (use it if you want to get all reviews). Default - 10.
+
 ## Save results to JSON
 
-Import `airbnb`, `saveToJSON` to your file:
+Import `saveToJSON` to your file:
 
 ```javascript
 import { airbnb, saveToJSON } from "hotels-scraper-js";
@@ -58,12 +80,12 @@ saveToJSON(data, filename);
 ```
 
 - `data` - scraped results;
-- `filename` - name of saving file. Default - "Airbnb results".
+- `filename` - name of saving file. Default - "parsed_results".
 
 ## Results example
 
 <details>
-<summary>Hotels results</summary>
+<summary>Airbnb hotels results</summary>
 
 ```json
 [
@@ -83,7 +105,7 @@ saveToJSON(data, filename);
 </details>
 
 <details>
-<summary>Hotel info result</summary>
+<summary>Airbnb hotel info result</summary>
 
 ```json
 {
@@ -146,6 +168,131 @@ saveToJSON(data, filename);
   }
 }
 
+```
+
+</details>
+
+<details>
+<summary>Booking hotels results</summary>
+
+```json
+[
+  {
+    "thumbnail":"https://cf.bstatic.com/xdata/images/hotel/square200/76073434.webp?k=bb74dd88f738df22dc8f756b92f92477da8ed945300449c8c14bc31ca1d56bd2&o=&s=1",
+    "title":"Apollon MontparnasseOpens in new window",
+    "stars":3,
+    "preferredBadge":true,
+    "promotedBadge":false,
+    "location":"14th arr., Paris",
+    "subwayAccess":true,
+    "sustainability":"Travel Sustainable property",
+    "distanceFromCenter":3.5,
+    "highlights":[
+        "Standard Double Room",
+        "1 full bed",
+        "Only 5 rooms left at this price on our site"
+    ],
+    "price":{
+        "currency":"US$",
+        "value":70,
+        "taxesAndCharges":4
+    },
+    "rating":{
+        "score":8,
+        "scoreDescription":"Very Good",
+        "reviews":1
+    },
+    "link":"https://www.booking.com/hotel/fr/apollon-montparnasse.html?aid=304142&label=gen173nr-1FCAQoggJCDHNlYXJjaF9wYXJpc0gxWARo6QGIAQGYATG4ARfIAQzYAQHoAQH4AQOIAgGoAgO4Aq3Kk6AGwAIB0gIkOWJlN2NmYTUtNjU0MS00ODhjLWJlYmMtMTE0NjRjNmE4Mzdh2AIF4AIB&ucfs=1&arphpl=1&checkin=2023-03-05&checkout=2023-03-06&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=15&hapos=15&sr_order=popularity&srpvid=39e084d62f6804da&srepoch=1678042414&all_sr_blocks=189619302_92687463_0_2_0&highlighted_blocks=189619302_92687463_0_2_0&matching_block_id=189619302_92687463_0_2_0&sr_pri_blocks=189619302_92687463_0_2_0__6600&from_sustainable_property_sr=1&from=searchresults#hotelTmpl"
+  },
+  ... and other hotels
+]
+```
+
+</details>
+
+<details>
+<summary>Booking hotel info result</summary>
+
+```json
+{
+   "title":"The Renwick",
+   "type":"Hotel",
+   "stars":4,
+   "preferredBadge":true,
+   "subwayAccess":true,
+   "sustainability":"Travel Sustainable property",
+   "address":"118 East 40th Street, Murray Hill, New York, NY 10016, United States of America",
+   "highlights":[
+      "Pet friendly",
+      "Free WiFi",
+      "Air conditioning",
+      ... and other highlights
+   ],
+   "shortDescription":"Stay in the heart of New York\n\n–\n\nExcellent location – show map",
+   "description":"You're eligible for a Genius discount at The Renwick! To save at this property, all you have to do is sign in.\n""+""Featuring free WiFi, The Renwick offers luxury residential-style accommodations in Midtown Manhattan, 400 m from Bryant Park.\n""+""Every art-inspired room at this historic hotel includes a flat-screen TV. Each room has a private bathroom with free toiletries and a hairdryer.\n""+""There is a 24-hour front desk, fitness center and business center at The Renwick.\n""+""Grand Central Terminal is 271 m from The Renwick, while Empire State Building is 901 m away. The nearest airport is La Guardia Airport, 5.6 mi from the property.",
+   "descriptionHighlight":"Families in particular like the location – they rated it 9.5 for a stay with kids.",
+   "descriptionSummary":"The Renwick has been welcoming Booking.com guests since Jun 25, 2006\n""+""\n""+""Hotel chain/brand:\n""+""Rebel Hotel Company",
+   "facilities":[
+      "Non-smoking rooms",
+      "Fitness center",
+      "Facilities for disabled guests",
+      ... and other facilities
+   ],
+   "areaInfo":[
+      {
+         "What's nearby":[
+            {
+               "place":"Chrysler Building",
+               "distance":"200 m"
+            },
+            {
+               "place":"Morgan Library & Museum",
+               "distance":"400 m"
+            },
+          ... and other "What's nearby" results
+         ]
+      },
+      ... and other aria info
+   ],
+   "link":"https://www.booking.com/hotel/us/the-renwick.html?aid=304142&label=gen173nr-1FCAQoggJCD3NlYXJjaF9uZXcgeW9ya0gxWARo6QGIAQGYATG4ARfIAQzYAQHoAQH4AQOIAgGoAgO4AsDdkqAGwAIB0gIkZWZjNzg1ZjQtOTQ4OS00MTk2LWFhNTctZDBhNjY0ODNlMjBk2AIF4AIB&sid=8a3276de1a926aa7e34f278dfb7fc6a2&age=0&age=0&all_sr_blocks=5602126_351661370_4_0_0%2C5602123_351661370_2_0_0&checkin=2023-07-30&checkout=2023-08-12&dist=0&group_adults=4&group_children=2&hapos=100&highlighted_blocks=5602126_351661370_4_0_0%2C5602123_351661370_2_0_0&hpos=25&matching_block_id=5602126_351661370_4_0_0&no_rooms=2&req_adults=4&req_age=0&req_age=0&req_children=2&room1=A%2CA%2C0&room2=A%2CA%2C0&sb_price_type=total&sr_order=popularity&sr_pri_blocks=5602126_351661370_4_0_0__418795%2C5602123_351661370_2_0_0__338895&srepoch=1678028492&srpvid=526669a055bb0322&type=total&ucfs=1&activeTab=main#tab-main",
+   "photos":[
+      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/62412250.jpg?k=7389247a6dbefb943abdb9c9e9e4bc29f4dbd0e38b07e4bf0e3483632c14ec58&o=&hp=1",
+      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/62412277.jpg?k=efff09d78f321bf902267f8d939921ec4fbb3bb81c78167dd6e3c5696181df4f&o=&hp=1",
+      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/53916939.jpg?k=a05597263a68862bbe161d19611ba40ab54c27dbbb887d1747a503f0c04a6e12&o=&hp=1",
+    ... and other photos
+   ],
+   "reviewsInfo":{
+      "score":8.2,
+      "scoreDescription":"Rated very good",
+      "totalReviews":1,
+      "categoriesRating":[
+         {
+            "Staff":8.8
+         },
+         {
+            "Facilities":7.9
+         },
+        ... and other categories
+      ],
+      "reviews":[
+         {
+            "name":"Jack",
+            "avatar":"https://cf.bstatic.com/static/img/review/avatars/ava-j/f69a0f45af414641ac0371c1f139c49637969c6c.png",
+            "country":"United Kingdom",
+            "date":"Reviewed: October 9, 2022",
+            "reting":"10",
+            "review":[
+               {
+                  "liked":"We spent so much time reviewing hotels for our first trip to New York and were so pleased with choosing The Renwick. Upon arrival, the lady at reception was so friendly, bubbly and welcoming. In general, the staff were great and were super knowledgeable and always willing to support and ensure we were okay and comfortable. Additionally, the housekeeping were brilliant and ensured our room was sparkling clean everyday and with fresh towels. As for the room, we were on the 17th floor, it was nicely decorated, spacious,
+great shower/pressure and the bed super comfortable. The Wi-Fi was also excellent. We always looked forward to returning after a long day exploring the streets of amazing New York City!\n""+""If I had to pick one little negative, we were checked out by a different lady at reception and she wasn't so friendly. Oh well, no biggie.\n""+""When we return to New York we will be returning to this hotel."
+               }
+            ],
+            "hotelResponse":"Thank you for sharing this wonderful review, Jack!\n""+""We are very pleased to hear that you had an enjoyable experience at The Renwick Hotel and loved our spacious, clean accommodations and housekeeping services! We appreciate your praise for our team; they work very hard to ensure every guest feels right at home. We are delighted you felt welcomed and valued during your time with us!\n""+""We'd love to share another positive experience with you in the future!"
+         },
+        ... and other reviews
+      ]
+   }
+}
 ```
 
 </details>
