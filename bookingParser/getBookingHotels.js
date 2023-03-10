@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import moment from "moment";
 import { getBrowserInstance } from "../helpers/browserInstance.cjs";
 import getBookingFilters from "./getBookingFilters.js";
 
@@ -12,6 +13,8 @@ const getHotelsInfo = async (page) => {
         .querySelector('[data-testid="taxes-and-charges"]')
         ?.textContent.trim()
         .replace(/[^0-9|+|-]/gm, "");
+      const rawLink = el.querySelector("a").getAttribute("href");
+      const link = `${rawLink.slice(0, rawLink.indexOf("?"))}?lang=en-us`;
       return {
         thumbnail: el.querySelector("a img").getAttribute("src"),
         title: el.querySelector("h3").textContent.trim(),
@@ -32,16 +35,37 @@ const getHotelsInfo = async (page) => {
           score: parseFloat(el.querySelector('[data-testid="review-score"] > div:first-child')?.textContent.trim()) || "No rating",
           scoreDescription:
             el.querySelector('[data-testid="review-score"] > div:last-child > div:first-child')?.getAttribute("aria-label") || "No rating",
-          reviews: parseInt(el.querySelector('[data-testid="review-score"] > div:last-child > div:last-child')?.textContent.trim()) || "No rating",
+          reviews:
+            parseInt(el.querySelector('[data-testid="review-score"] > div:last-child > div:last-child')?.textContent.trim().replace(",", "")) ||
+            "No rating",
         },
-        link: el.querySelector("a").getAttribute("href"),
+        link,
       };
     });
   });
 };
 
-const getBookingHotels = async (multiplierArgument, searchParams = {}) => {
-  const { filters: appliedFilters, currency, resultsLimit, location, checkIn, checkOut, adults, children, rooms, travelPurpose } = searchParams;
+const getBookingHotels = async (
+  multiplierArgument,
+  appliedFilters,
+  currency,
+  limit,
+  selectedLocation,
+  selectedCheckIn,
+  selectedCheckOut,
+  selectedAdults,
+  selectedChildren,
+  selectedRooms,
+  selectedTravelPurpose
+) => {
+  const resultsLimit = limit || 35;
+  const location = selectedLocation || "paris";
+  const checkIn = selectedCheckIn?.replace(/(\d+)\/(\d+)\/(\d+)/, "$3-$1-$2") || moment().format("YYYY-MM-DD");
+  const checkOut = selectedCheckOut?.replace(/(\d+)\/(\d+)\/(\d+)/, "$3-$1-$2") || moment().add(1, "d").format("YYYY-MM-DD");
+  const adults = selectedAdults || 2;
+  const children = selectedChildren || 0;
+  const rooms = selectedRooms || 1;
+  const travelPurpose = selectedTravelPurpose || "leisure";
   multiplier = multiplierArgument;
   const { currencies, filters } = getBookingFilters();
   let parsedFilters;

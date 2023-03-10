@@ -32,7 +32,7 @@ booking.getHotels().then(console.log);
 `airbnb` available methods:
 
 ```javascript
-getHotels([category[, currency[, resultsLimit]]])
+getHotels([category[, currency[, resultsLimit[, location[, checkIn[, checkOut[, adults[, children]]]]]]]])
 getHotelInfo(link[, currency[, reviewsLimit]])
 getFilters()
 ```
@@ -40,6 +40,11 @@ getFilters()
 - `category` - category code. You can get all available categories with their codes from `getFilters()` method. You can use both "name" or "value";
 - `currency` - currency code. You can get all available currencies with their codes from `getFilters()` method. You can use both "name" or "value" ;
 - `resultsLimit` - parameter defines the results amount you want to get. Must be a number or `Infinity` (use it if you want to get all results in the selected category). Default - 20;
+- `location` - parameter defines the location of hotels to search;
+- `checkIn` - parameter defines the check-in date. Format - "12/31/2023";
+- `checkOut` - parameter defines the check-out date. Format - "12/31/2023";
+- `adults` - parameter defines the number of adult guests;
+- `children` - parameter defines the number of child guests;
 - `reviewsLimit` - parameter defines the reviews amount you want to get. Must be a number or `Infinity` (use it if you want to get all reviews). Default - 10.
 
 `booking` available methods:
@@ -50,17 +55,16 @@ getHotelInfo(link[, reviewsLimit])
 getFilters()
 ```
 
-- `searchParams` - parameters for search:
-  - `filters` - an array with filter codes. You can get all available filters with their codes from `getFilters()` method. You can use both "name" or "value";
-  - `currency` - currency code. You can get all available currencies with their codes from `getFilters()` method. You can use both "name" or "value". Default - "USD";
-  - `resultsLimit` - parameter defines the results amount you want to get. Must be a number or `Infinity` (use it if you want to get all results in the selected category). Default - 35;
-  - `location` - location of hotels to search. Default - "Paris";
-  - `checkIn` - check-in date. Format - "2022-12-31", Default - today;
-  - `checkOut` - check-in date. Format - "2022-12-31", Default - tomorrow;
-  - `adults` - number of adult guests. Default - 2;
-  - `children` - number of child guests. Default - 0;
-  - `rooms` - number of rooms needed. Default - 1;
-  - `travelPurpose` - travel purpouse. Available "leisure" or "business". Default - "leisure";
+- `filters` - an array with filter codes. You can get all available filters with their codes from `getFilters()` method. You can use both "name" or "value";
+- `currency` - currency code. You can get all available currencies with their codes from `getFilters()` method. You can use both "name" or "value". Default - "USD";
+- `resultsLimit` - parameter defines the results amount you want to get. Must be a number or `Infinity` (use it if you want to get all results in the selected category). Default - 35;
+- `location` - location of hotels to search. Default - "Paris";
+- `checkIn` - check-in date. Format - "12/31/2023", Default - today;
+- `checkOut` - check-in date. Format - "12/31/2023", Default - tomorrow;
+- `adults` - number of adult guests. Default - 2;
+- `children` - number of child guests. Default - 0;
+- `rooms` - number of rooms needed. Default - 1;
+- `travelPurpose` - travel purpouse. Available "leisure" or "business". Default - "leisure";
 - `reviewsLimit` - parameter defines the reviews amount you want to get. Must be a number or `Infinity` (use it if you want to get all reviews). Default - 10.
 
 ## Save results to JSON
@@ -80,23 +84,81 @@ saveToJSON(data, filename);
 ```
 
 - `data` - scraped results;
-- `filename` - name of saving file. Default - "parsed_results".
+- `filename` - name of the saving file. Use only a filename, because an extension is always `.json`. Default - "parsed_results".
+
+## If you have a slow Internet connection
+
+You can multiplicate waiting time for loading information by set `timeMultiplier` before starting the parser:
+
+```javascript
+import { airbnb, booking } from "hotels-scraper-js";
+
+airbnb.timeMultiplier = 2; // double Airbnb load times
+booking.timeMultiplier = 2; // double Booking load times
+
+airbnb.getHotels().then(console.log);
+booking.getHotels().then(console.log);
+```
 
 ## Results example
 
 <details>
-<summary>Airbnb hotels results</summary>
+<summary>Hotels results</summary>
+
+**Airbnb results**
 
 ```json
 [
   {
-    "thumbnail": "https://a0.muscache.com/im/pictures/10833886/1edf8559_original.jpg?im_w=720",
-    "title": "Hvar, Croatia",
-    "distance": "Sea and harbor views",
-    "dates": "Jul 23 – 30",
-    "price": { "currency": "$", "value": 304 },
-    "rating": 4.82,
-    "link": "https://www.airbnb.com/rooms/735683?adults=1&category_tag=Tag%3A8536&children=0&infants=0&pets=0&search_mode=flex_destinations_search&check_in=2023-07-23&check_out=2023-07-30&previous_page_section_name=1000&federated_search_id=2998a5b1-9934-4d5d-a721-4a1065c45ca6"
+    "thumbnail":"https://a0.muscache.com/im/pictures/9ca40aba-5b1a-4a90-9de6-a51a75d74e8d.jpg?im_w=720",
+    "title":"Private room in Courbevoie",
+    "subtitles":[
+        "Courbevoie—Verdun room near La Défense",
+        "1 double bed"
+    ],
+    "dates":"03/10/2023 - 03/13/2023",
+    "price":{
+        "currency":"$",
+        "value":46,
+        "period":"night"
+    },
+    "rating":4.8,
+    "link":"https://www.airbnb.com/rooms/28935929"
+  },
+  ... and other hotels
+]
+```
+
+**Booking results**
+
+```json
+[
+  {
+    "thumbnail":"https://cf.bstatic.com/xdata/images/hotel/square200/76073434.webp?k=bb74dd88f738df22dc8f756b92f92477da8ed945300449c8c14bc31ca1d56bd2&o=&s=1",
+    "title":"Apollon MontparnasseOpens in new window",
+    "stars":3,
+    "preferredBadge":true,
+    "promotedBadge":false,
+    "location":"14th arr., Paris",
+    "subwayAccess":true,
+    "sustainability":"Travel Sustainable property",
+    "distanceFromCenter":3.5,
+    "highlights":[
+        "Standard Double Room",
+        "1 full bed",
+        "Only 5 rooms left at this price on our site"
+    ],
+    "price":{
+        "currency":"US$",
+        "value":70,
+        "taxesAndCharges":4
+    },
+    "rating":{
+        "score":8,
+        "scoreDescription":"Very Good",
+        "reviews":1
+    },
+    "link":"https://www.booking.com/hotel/fr/apollon-montparnasse.html?aid=304142&label=gen173nr-1FCAQoggJCDHNlYXJjaF9wYXJpc0gxWARo6QGIAQGYATG4ARfIAQzYAQHoAQH4AQOIAgGoAgO4Aq3Kk6AGwAIB0gIkOWJlN2NmYTUtNjU0MS00ODhjLWJlYmMtMTE0NjRjNmE4Mzdh2AIF4AIB&ucfs=1&arphpl=1&checkin=2023-03-05&checkout=2023-03-06&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=15&hapos=15&sr_order=popularity&srpvid=39e084d62f6804da&srepoch=1678042414&all_sr_blocks=189619302_92687463_0_2_0&highlighted_blocks=189619302_92687463_0_2_0&matching_block_id=189619302_92687463_0_2_0&sr_pri_blocks=189619302_92687463_0_2_0__6600&from_sustainable_property_sr=1&from=searchresults#hotelTmpl"
   },
   ... and other hotels
 ]
@@ -105,7 +167,9 @@ saveToJSON(data, filename);
 </details>
 
 <details>
-<summary>Airbnb hotel info result</summary>
+<summary>Hotel info result</summary>
+
+**Airbnb results**
 
 ```json
 {
@@ -116,7 +180,7 @@ saveToJSON(data, filename);
     { "title": "Self check-in", "subtitle": "Check yourself in with the lockbox." },
     ... and other highlights
   ],
-  "price": { "currency": "$", "perNight": 136, "cleaningFee": 32, "airbnbFee": 121 },
+  "price": { "currency": "$", "perNight": 136 },
   "description": "Amazing and stylish A-frame house at the edge of the forest and at the bend of Peterupe river. Located 40km from Riga and 8km from Saulkrasti. Perfect place for your city escape.The spaceThe Black A-frame is located 10 min drive from the seaside and 10 min walk from Pabaži Lake. This place is quiet and very comfortable. Outside there is a terrace where you can enjoy magical forest view and bird songs. There is a small river next to house. House can accommodate up to three guests as we have one double bed in Loft and in living room we have sofa bed, so there is extra place to sleep if you have children with you. We are dog friendly, so bring your dog along with you on your visit. Pet fee 10 eur.We have hot tub near house and if you want, you can rent it for extra charge 60 eur.In our house there is only wood stove heating, you will be able to feel the countryside authenticity. Especially when the sun is down in the breezy nighttime the wood stove will warm you and your hearts. If you have no experience in wood stove heating, you’ll find instructions in our lovely cabin! Don’t forget to fire up wood stove first thing in the morning, because if cold outside, in the morning it might be chilly inside.If you desire - give us notice, at what time we should expect your arrival, so we can pre-heat house before you get here and after you have arrived you can continue heating the house yourself!If you have small children, please note that there is a porch with no railings and a river close to house. Please don't leave your kids without supervision and be responsible parents.",
   "sleepOptions": [
     { "room": "Bedroom", "bed": "1 double bed" },
@@ -170,48 +234,7 @@ saveToJSON(data, filename);
 
 ```
 
-</details>
-
-<details>
-<summary>Booking hotels results</summary>
-
-```json
-[
-  {
-    "thumbnail":"https://cf.bstatic.com/xdata/images/hotel/square200/76073434.webp?k=bb74dd88f738df22dc8f756b92f92477da8ed945300449c8c14bc31ca1d56bd2&o=&s=1",
-    "title":"Apollon MontparnasseOpens in new window",
-    "stars":3,
-    "preferredBadge":true,
-    "promotedBadge":false,
-    "location":"14th arr., Paris",
-    "subwayAccess":true,
-    "sustainability":"Travel Sustainable property",
-    "distanceFromCenter":3.5,
-    "highlights":[
-        "Standard Double Room",
-        "1 full bed",
-        "Only 5 rooms left at this price on our site"
-    ],
-    "price":{
-        "currency":"US$",
-        "value":70,
-        "taxesAndCharges":4
-    },
-    "rating":{
-        "score":8,
-        "scoreDescription":"Very Good",
-        "reviews":1
-    },
-    "link":"https://www.booking.com/hotel/fr/apollon-montparnasse.html?aid=304142&label=gen173nr-1FCAQoggJCDHNlYXJjaF9wYXJpc0gxWARo6QGIAQGYATG4ARfIAQzYAQHoAQH4AQOIAgGoAgO4Aq3Kk6AGwAIB0gIkOWJlN2NmYTUtNjU0MS00ODhjLWJlYmMtMTE0NjRjNmE4Mzdh2AIF4AIB&ucfs=1&arphpl=1&checkin=2023-03-05&checkout=2023-03-06&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=15&hapos=15&sr_order=popularity&srpvid=39e084d62f6804da&srepoch=1678042414&all_sr_blocks=189619302_92687463_0_2_0&highlighted_blocks=189619302_92687463_0_2_0&matching_block_id=189619302_92687463_0_2_0&sr_pri_blocks=189619302_92687463_0_2_0__6600&from_sustainable_property_sr=1&from=searchresults#hotelTmpl"
-  },
-  ... and other hotels
-]
-```
-
-</details>
-
-<details>
-<summary>Booking hotel info result</summary>
+**Booking results**
 
 ```json
 {

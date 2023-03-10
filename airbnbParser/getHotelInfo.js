@@ -36,10 +36,6 @@ const getHotelInfo = async (page) => {
       document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] ._1y74zjx')
     )?.textContent.trim();
     const currency = priceString.replace(/[\d|,|.]+/gm, "").replace(/\s/gm, "");
-    const fiveNightPriceString = Array.from(document.querySelectorAll('[data-section-id="BOOK_IT_SIDEBAR"] ._1k4xcdh'))[0]?.textContent.trim();
-    const cleaningPriceString = Array.from(document.querySelectorAll('[data-section-id="BOOK_IT_SIDEBAR"] ._1k4xcdh'))[1]?.textContent.trim();
-    const airbnbgPriceString = Array.from(document.querySelectorAll('[data-section-id="BOOK_IT_SIDEBAR"] ._1k4xcdh'))[2]?.textContent.trim();
-    const totalPriceString = document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] ._1qs94rc')?.textContent.trim();
     return {
       name: document.querySelector("h1")?.textContent.trim(),
       shortDescription: document.querySelector("h2")?.textContent.trim(),
@@ -53,10 +49,6 @@ const getHotelInfo = async (page) => {
       price: {
         currency,
         perNight: parseFloat(priceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
-        fiveNights: parseFloat(fiveNightPriceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
-        cleaningFee: parseFloat(cleaningPriceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
-        airbnbFee: parseFloat(airbnbgPriceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
-        total: parseFloat(totalPriceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
       },
       description: document.querySelector('[data-section-id="DESCRIPTION_DEFAULT"] .ll4r2nl')?.textContent.trim(),
       sleepOptions: Array.from(document.querySelectorAll('[data-section-id="SLEEPING_ARRANGEMENT_DEFAULT"] ._c991cpe')).map((el) => ({

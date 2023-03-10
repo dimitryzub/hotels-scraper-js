@@ -1,4 +1,3 @@
-import moment from "moment/moment.js";
 import getAirbnbFilters from "./airbnbParser/getAirbnbFilters.js";
 import getAirbnbHotels from "./airbnbParser/getAirbnbHotels.js";
 import getAirbnbHotelInfo from "./airbnbParser/getHotelInfo.js";
@@ -16,9 +15,15 @@ export const airbnb = {
    * @param {String} category - Category code. You can use both "name" or "value" from `getFilters().categories`;
    * @param {String} currency - Currency code. You can use both "name" or "value" from `getFilters().currencies`;
    * @param {Number} resultsLimit - parameter defines the results amount you want to get. Must be a number or `Infinity`. Default - 20;
+   * @param {String} location - parameter defines the location of hotels to search;
+   * @param {String} checkIn - parameter defines the check-in date. Format - "12/31/2023";
+   * @param {String} checkOut - parameter defines the check-out date. Format - "12/31/2023";
+   * @param {Number} adults - parameter defines the number of adult guests;
+   * @param {Number} children - parameter defines the number of child guests;
    * @return {Array.<object>} An array with hotels results.
    */
-  getHotels: async (category, currency, resultsLimit) => getAirbnbHotels(airbnb.timeMultiplier, category, currency, resultsLimit),
+  getHotels: async (category, currency, resultsLimit, location, checkIn, checkOut, adults, children) =>
+    getAirbnbHotels(airbnb.timeMultiplier, category, currency, resultsLimit, location, checkIn, checkOut, adults, children),
 
   /**
    * Get hotel info from Airbnb
@@ -40,36 +45,23 @@ export const airbnb = {
 export const booking = {
   timeMultiplier: 1,
 
-  _defaultSearchParams: {
-    currency: "USD",
-    resultsLimit: 35,
-    location: "paris",
-    checkIn: moment().format("YYYY-MM-DD"),
-    checkOut: moment().add(1, "d").format("YYYY-MM-DD"),
-    adults: 2,
-    children: 0,
-    rooms: 1,
-    travelPurpose: "leisure",
-  },
-
   /**
    * Get hotels list from Booking
    * @async
-   * @param {{
-   * filters: Array<String>
-   * currency: String,
-   * resultsLimit: Number,
-   * location: String,
-   * checkIn: String,
-   * checkOut: String,
-   * adults: Number,
-   * children: Number,
-   * rooms: Number,
-   * travelPurpose: String,
-   * }} searchParams - search parameters;
+   * @param {Array} filters - an array with filter codes. You can get all available filters with their codes from `getFilters()` method. E.g. `["class=5", "pri=5"]`;
+   * @param {String} currency - currency code. You can get all available currencies with their codes from `getFilters()` method. Default - "USD";
+   * @param {String} resultsLimit - parameter defines the results amount you want to get. Must be a number or `Infinity`. Default - 35;
+   * @param {String} location - location of hotels to search. Default - "Paris";
+   * @param {String} checkIn - check-in date. Format - "2022-12-31", Default - today;
+   * @param {String} checkOut - check-in date. Format - "2022-12-31", Default - tomorrow;
+   * @param {String} adults - number of adult guests. Default - 2;
+   * @param {String} children - number of child guests. Default - 0;
+   * @param {String} rooms - number of rooms needed. Default - 1;
+   * @param {String} travelPurpose - travel purpouse. Available "leisure" or "business". Default - "leisure";
    * @return {Array.<Object>} An array with hotels results.
    */
-  getHotels: async (searchParams) => getBookingHotels(booking.timeMultiplier, { ...booking._defaultSearchParams, ...searchParams }),
+  getHotels: async (filters, currency, resultsLimit, location, checkIn, checkOut, adults, children, rooms, travelPurpose) =>
+    getBookingHotels(booking.timeMultiplier, filters, currency, resultsLimit, location, checkIn, checkOut, adults, children, rooms, travelPurpose),
 
   /**
    * Get hotel info from Booking

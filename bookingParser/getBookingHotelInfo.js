@@ -35,7 +35,7 @@ const getHotelReviews = async (page) => {
     return {
       score: parseFloat(document.querySelector("#review_list_score_container .d10a6220b4")?.textContent.trim()),
       scoreDescription: document.querySelector("#review_list_score_container .f0d4d6a2f5")?.getAttribute("aria-label"),
-      totalReviews: parseInt(document.querySelector("#review_list_score_container .d8eab2cf7f")?.textContent.trim()),
+      totalReviews: parseInt(document.querySelector("#review_list_score_container .d8eab2cf7f")?.textContent.trim().replace(",", "")),
       categoriesRating: Array.from(document.querySelectorAll('#review_list_score_container .ccff2b4c43 > [data-testid="review-subscore"]')).map(
         (el) => ({
           [`${el.querySelector(".d6d4671780")?.textContent.trim()}`]: parseFloat(
@@ -47,7 +47,7 @@ const getHotelReviews = async (page) => {
         name: el.querySelector(".bui-avatar-block__title")?.textContent.trim(),
         avatar: el.querySelector(".bui-avatar__image")?.getAttribute("src"),
         country: el.querySelector(".bui-avatar-block__subtitle")?.textContent.trim(),
-        date: el.querySelector(".c-review-block__right .c-review-block__date")?.textContent.trim(),
+        date: el.querySelector(".c-review-block__right .c-review-block__date")?.textContent.split(":")[1].trim(),
         reting: el.querySelector(".bui-review-score__badge")?.textContent.trim(),
         review: Array.from(el.querySelectorAll(".c-review__inner")).map((el) => ({
           [`${el.querySelector(".-iconset-review_poor") ? "didNotLike" : "liked"}`]: el.querySelector(".c-review__body")?.textContent.trim(),
