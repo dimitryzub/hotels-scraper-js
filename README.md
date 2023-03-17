@@ -6,7 +6,7 @@ Currently supports:
 
 - [Airbnb](https://www.airbnb.com/)
 - [Booking](https://www.booking.com/)
-- [Hotels.com](https://hotels.com/) (soon)
+- [Hotels.com](https://hotels.com/)
 
 ## Install
 
@@ -20,13 +20,14 @@ npm i hotels-scraper-js
 
 📌Note: Only [ES modules](https://nodejs.org/api/esm.html) `import` statement is available.
 
-Import `airbnb` and/or `booking` to your file:
+Import `airbnb`, and/or `booking`, and/or `hotelsCom` to your file:
 
 ```javascript
-import { airbnb, booking } from "hotels-scraper-js";
+import { airbnb, booking, hotelsCom } from "hotels-scraper-js";
 
 airbnb.getHotels().then(console.log);
 booking.getHotels().then(console.log);
+hotelsCom.getHotels().then(console.log);
 ```
 
 `airbnb` available methods:
@@ -36,6 +37,9 @@ getHotels([category[, currency[, resultsLimit[, location[, checkIn[, checkOut[, 
 getHotelInfo(link[, currency[, reviewsLimit]])
 getFilters()
 ```
+
+<details>
+<summary>Full parameters list</summary>
 
 - `category` - category code. You can get all available categories with their codes from `getFilters()` method. You can use both "name" or "value";
 - `currency` - currency code. You can get all available currencies with their codes from `getFilters()` method. You can use both "name" or "value" ;
@@ -47,13 +51,18 @@ getFilters()
 - `children` - parameter defines the number of child guests;
 - `reviewsLimit` - parameter defines the reviews amount you want to get. Must be a number or `Infinity` (use it if you want to get all reviews). Default - 10.
 
+</details>
+
 `booking` available methods:
 
 ```javascript
-getHotels(searchParams)
+getHotels([filters[, currency[, resultsLimit[, location[, checkIn[, checkOut[, adults[, children[, [rooms]]]]]]]]]])
 getHotelInfo(link[, reviewsLimit])
 getFilters()
 ```
+
+<details>
+<summary>Full parameters list</summary>
 
 - `filters` - an array with filter codes. You can get all available filters with their codes from `getFilters()` method. You can use both "name" or "value";
 - `currency` - currency code. You can get all available currencies with their codes from `getFilters()` method. You can use both "name" or "value". Default - "USD";
@@ -66,6 +75,34 @@ getFilters()
 - `rooms` - number of rooms needed. Default - 1;
 - `travelPurpose` - travel purpouse. Available "leisure" or "business". Default - "leisure";
 - `reviewsLimit` - parameter defines the reviews amount you want to get. Must be a number or `Infinity` (use it if you want to get all reviews). Default - 10.
+
+</details>
+
+`hotelsCom` available methods:
+
+```javascript
+getHotels([filters[, currency[, resultsLimit[, location[, checkIn[, checkOut[, adults[, children[, [rooms]]]]]]]]]])
+getHotelInfo(link[, reviewsLimit])
+getFilters()
+```
+
+<details>
+<summary>Full parameters list</summary>
+
+- `filters` - an array with filter codes. You can get all available filters with their codes from `getFilters()` method. You can use both "name" or "value";
+- `priceFrom` - min price filter. On Hotels.com available 10 price steps. `priceFrom` value will be round to the nearest lower step value;
+- `priceTo` - max price filter. On Hotels.com available 10 price steps. `priceTo` value will be round to the nearest higher step value;
+- `country` - country name. You can get all available countries with their currencies and languages (if provided) from `getFilters().locales` method;
+- `language` - interface language. You can change language only if the selected `country` has several languages;
+- `resultsLimit` - parameter defines the results amount you want to get. Must be a number or `Infinity` (use it if you want to get all results in the selected category). Default - 35;
+- `location` - location of hotels to search. Default - "Paris";
+- `checkIn` - check-in date. Format - "12/31/2023", Default - today;
+- `checkOut` - check-in date. Format - "12/31/2023", Default - tomorrow;
+- `adults` - number of adult guests. Default - 2;
+- `children` - number of child guests. Default - 0;
+- `reviewsLimit` - parameter defines the reviews amount you want to get. Must be a number or `Infinity` (use it if you want to get all reviews). Default - 10.
+
+</details>
 
 ## Save results to JSON
 
@@ -91,13 +128,15 @@ saveToJSON(data, filename);
 You can multiplicate waiting time for loading information by set `timeMultiplier` before starting the parser:
 
 ```javascript
-import { airbnb, booking } from "hotels-scraper-js";
+import { airbnb, booking, hotelsCom } from "hotels-scraper-js";
 
 airbnb.timeMultiplier = 2; // double Airbnb load times
 booking.timeMultiplier = 2; // double Booking load times
+hotelsCom.timeMultiplier = 2; // double Hotels.com load times
 
 airbnb.getHotels().then(console.log);
 booking.getHotels().then(console.log);
+hotelsCom.getHotels().then(console.log);
 ```
 
 ## Results example
@@ -160,6 +199,40 @@ booking.getHotels().then(console.log);
     },
     "link":"https://www.booking.com/hotel/fr/apollon-montparnasse.html?aid=304142&label=gen173nr-1FCAQoggJCDHNlYXJjaF9wYXJpc0gxWARo6QGIAQGYATG4ARfIAQzYAQHoAQH4AQOIAgGoAgO4Aq3Kk6AGwAIB0gIkOWJlN2NmYTUtNjU0MS00ODhjLWJlYmMtMTE0NjRjNmE4Mzdh2AIF4AIB&ucfs=1&arphpl=1&checkin=2023-03-05&checkout=2023-03-06&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=15&hapos=15&sr_order=popularity&srpvid=39e084d62f6804da&srepoch=1678042414&all_sr_blocks=189619302_92687463_0_2_0&highlighted_blocks=189619302_92687463_0_2_0&matching_block_id=189619302_92687463_0_2_0&sr_pri_blocks=189619302_92687463_0_2_0__6600&from_sustainable_property_sr=1&from=searchresults#hotelTmpl"
   },
+  ... and other hotels
+]
+```
+
+**Hotels.com results**
+
+```json
+[
+   {
+      "title":"Hotel 10 Opera",
+      "isAd":true,
+      "location":"Paris",
+      "snippet":{
+         "title":"3* hotel located near the Opera",
+         "text":"In the heart of the 9th district: customized offers according to the length of stay, flexibility & reinforced sanitary measures."
+      },
+      "paymentOptions":[
+         "Fully refundable",
+         "Reserve now, pay later"
+      ],
+      "highlightedAmenities":[
+          "Hot tub"
+      ],
+      "price":{
+         "currency":"$",
+         "value":193,
+         "withTaxesAndCharges":216
+      },
+      "rating":{
+         "score":8.8,
+         "reviews":35
+      },
+      "link":"https://www.hotels.com/ho282954/hotel-10-opera-paris-france/"
+   },
   ... and other hotels
 ]
 ```
@@ -311,6 +384,155 @@ great shower/pressure and the bed super comfortable. The Wi-Fi was also excellen
                }
             ],
             "hotelResponse":"Thank you for sharing this wonderful review, Jack!\n""+""We are very pleased to hear that you had an enjoyable experience at The Renwick Hotel and loved our spacious, clean accommodations and housekeeping services! We appreciate your praise for our team; they work very hard to ensure every guest feels right at home. We are delighted you felt welcomed and valued during your time with us!\n""+""We'd love to share another positive experience with you in the future!"
+         },
+        ... and other reviews
+      ]
+   }
+}
+```
+
+**Hotels.com results**
+
+```json
+{
+   "title":"Four Seasons Resort Oahu at Ko Olina",
+   "stars":5,
+   "shortDescription":"Kapolei beachfront resort with 4 restaurants and spa",
+   "address":"92-1001 Olani Street, Kapolei, HI, 96707",
+   "description":"At Four Seasons Resort Oahu at Ko Olina, you can hit the beach to retreat to a cabana or enjoy the shade from a beach umbrella, plus activities like scuba diving and snorkeling are nearby. 4 outdoor pools provide fun for everyone, while guests in the mood for pampering can visit the spa to indulge in massages, body wraps, and mani/pedis. Dining choices include 4 restaurants and the bar/lounge is a great place to grab a cold drink. A free kid's club, a poolside bar, and a health club are other highlights at this luxurious resort. Fellow travelers say good things about the pool and helpful staff.",
+   "languages":"Chinese (Mandarin), English, Japanese, Korean, Spanish",
+   "roomOptions":[
+      "Room, 2 Double Beds, Partial Ocean View",
+      "Room, Accessible, Partial Ocean View",
+      "Suite, 1 Bedroom, Ocean View",
+      ... and other room options
+   ],
+   "areaInfo":[
+      {
+         "What's nearby":[
+            {
+               "place":"Pearl Harbor",
+               "distance":"22 min drive"
+            },
+           ... and other nearby places
+         ]
+      },
+      {
+         "Getting around":[
+            {
+               "place":"Kapolei, HI (JRF-Kalaeloa)",
+               "distance":"15 min drive"
+            },
+          ... and other around places
+         ]
+      },
+      {
+         "Restaurants":[
+            {
+               "place":"Island Country Markets at Ko Olina",
+               "distance":"4 min walk"
+            },
+          ... and other restaurants
+         ]
+      }
+   ],
+   "CleaningAndSafety":[
+      {
+         "Enhanced cleanliness measures":[
+            "Disinfectant is used to clean the property",
+            "High-touch surfaces are cleaned and disinfected",
+            "Sheets and towels are washed at 60°C/140°F or hotter",
+            "Follows standard cleaning and disinfection practices of Lead with Care (Four Seasons)"
+         ]
+      },
+    ... and other cleaning and safety features
+   ],
+   "atAGlance":[
+      {
+         "Hotel size":[
+            "370 units",
+            "Arranged over 16 floors"
+         ]
+      },
+      ... and other amenities
+   ],
+   "propertyAmenities":[
+      {
+         "Food and drink":[
+            "Buffet breakfast (surcharge) each morning 6:00 AM–11:00 AM",
+            "4 restaurants",
+            "Bar/lounge",
+            "Poolside bar",
+            "Coffee shop",
+            "Coffee/tea in a common area",
+            "24-hour room service",
+            "Snack bar/deli"
+         ]
+      },
+       ... and other property amenities
+   ],
+   "roomAmenities":[
+      {
+         "Be entertained":[
+            "DVD player",
+            "65-inch flat-screen TV",
+            "Cable TV channels",
+            "Pay movies"
+         ]
+      },
+    ... and other room amenities
+   ],
+   "specialFeatures":[
+      {
+         "Spa":[
+            "Guests can indulge in a pampering treatment at the resort's full-service spa. Services include facials, body wraps, body scrubs, and body treatments. The spa is open daily."
+         ]
+      }
+   ],
+   "feesAndPolicies":[
+      {
+         "Optional extras":[
+            "Wired Internet access is available in public areas for USD 22 per stay (rates may vary)",
+            "Buffet breakfast is offered for an extra charge of approximately USD 15–75 for adults, and USD 15–75 for children",
+            "Airport shuttle service is offered for an extra charge of USD 340.00 per vehicle (one-way)",
+            "Late check-out can be arranged for an extra charge (subject to availability)"
+         ]
+      },
+      ... and other fees and policies
+   ],
+   "link":"https://www.hotels.com/ho161915/four-seasons-resort-oahu-at-ko-olina-kapolei-united-states-of-america/",
+   "photos":[
+      "https://images.trvl-media.com/lodging/1000000/10000/7000/6910/ad8af703.jpg?impolicy=resizecrop&rw=1200&ra=fit",
+      "https://images.trvl-media.com/lodging/1000000/10000/7000/6910/45b7af11.jpg?impolicy=resizecrop&rw=1200&ra=fit",
+      "https://images.trvl-media.com/lodging/1000000/10000/7000/6910/f1e44ee8.jpg?impolicy=resizecrop&rw=1200&ra=fit",
+      ... and other photos
+   ],
+   "reviewsInfo":{
+      "score":9.4,
+      "scoreDescription":"Exceptional",
+      "totalReviews":548,
+      "categoriesRating":[
+         {
+            "Cleanliness":9.6
+         },
+         {
+            "Staff & service":9.5
+         },
+         {
+            "Amenities":9.4
+         },
+         {
+            "Property conditions & facilities":9.5
+         },
+         {
+            "Eco-friendliness":9.1
+         }
+      ],
+      "reviews":[
+         {
+            "date":"Mar 2, 2023",
+            "reting":10,
+            "review":"Beautiful property and awesome service"
          },
         ... and other reviews
       ]
