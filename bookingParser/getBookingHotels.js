@@ -8,7 +8,7 @@ let multiplier = 1;
 const getHotelsInfo = async (page) => {
   return await page.evaluate(() => {
     return Array.from(document.querySelectorAll('[data-testid="property-card"]')).map((el) => {
-      const priceString = el.querySelector('[data-testid="price-and-discounted-price"]').textContent.trim();
+      const priceString = el.querySelector('[data-testid="price-and-discounted-price"]')?.textContent.trim();
       const taxesString = el
         .querySelector('[data-testid="taxes-and-charges"]')
         ?.textContent.trim()
@@ -17,20 +17,22 @@ const getHotelsInfo = async (page) => {
       const link = `${rawLink.slice(0, rawLink.indexOf("?"))}?lang=en-us`;
       return {
         thumbnail: el.querySelector("a img").getAttribute("src"),
-        title: el.querySelector("h3").textContent.trim(),
+        title: el.querySelector('h3 [data-testid="title"]').textContent.trim(),
         stars: parseInt(el.querySelector(".e4755bbd60")?.getAttribute("aria-label")),
         preferredBadge: Boolean(el.querySelector('[data-testid="preferred-badge"]')),
         promotedBadge: Boolean(el.querySelector(".e2f34d59b1")),
-        location: el.querySelector('[data-testid="address"]').textContent.trim(),
+        location: el.querySelector('[data-testid="address"]')?.textContent.trim(),
         subwayAccess: Boolean(el.querySelector(".f4bd0794db .cb5ebe3ffb > span:not([data-testid])")),
         sustainability: el.querySelector(".ff07fc41e3")?.textContent.trim(),
         distanceFromCenter: parseFloat(el.querySelector('[data-testid="distance"]')?.textContent.trim()),
         highlights: Array.from(el.querySelectorAll(".d22a7c133b > div > [class]")).map((el) => el.textContent.trim()),
-        price: {
-          currency: priceString.replace(/[\d|,|.]+/gm, "").replace(/\s/gm, ""),
-          value: parseFloat(priceString.match(/[\d|,|.]+/gm)[0].replace(",", "")),
-          taxesAndCharges: parseFloat(taxesString),
-        },
+        price: priceString
+          ? {
+              currency: priceString.replace(/[\d|,|.]+/gm, "").replace(/\s/gm, ""),
+              value: parseFloat(priceString.match(/[\d|,|.]+/gm)[0].replace(",", "")),
+              taxesAndCharges: parseFloat(taxesString),
+            }
+          : undefined,
         rating: {
           score: parseFloat(el.querySelector('[data-testid="review-score"] > div:first-child')?.textContent.trim()) || "No rating",
           scoreDescription:

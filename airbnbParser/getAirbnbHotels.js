@@ -100,7 +100,7 @@ const getAirbnbHotels = async (multiplierArgument, category, currency, limit, lo
   await page.goto(url);
   await page.waitForSelector("#site-content");
   if (currency && parsedCurrency) {
-    await page.click("._19c5bku:nth-child(2)");
+    await page.click('[data-testid="expandable-footer"] span:last-child button');
     await page.waitForTimeout(2000 * multiplier);
     await page.waitForSelector("._obr3yz");
     const selectedCurrencyIndex = await page.evaluate((currency) => {

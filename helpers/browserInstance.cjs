@@ -7,7 +7,7 @@ puppeteer.use(StealthPlugin());
 
 const getBrowserInstance = async () => {
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox", "--window-size=1600,900", "--single-process"],
     executablePath: executablePath(),
   });
