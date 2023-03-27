@@ -1,3 +1,13 @@
+<div align="center">
+<p>Special thanks to sponsor:</p>
+<div>
+   <img src="https://sindresorhus.com/assets/thanks/serpapi-logo-light.svg" width="140" alt="SerpApi">
+</div>
+<a href="https://serpapi.com">
+	<b>API to get search engine results with ease.</b>
+</a>
+</div>
+
 # 🏨Hotels Scraper
 
 Parser for website hotels, all from the single package, in JavaScript. Sponsored by [SerpApi](https://serpapi.com/).
