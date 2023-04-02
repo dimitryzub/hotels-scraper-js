@@ -99,12 +99,16 @@ const getAirbnbHotelInfo = async (multiplierArgument, link, currency, reviewsLim
   const priceString =
     (await page.$('[data-section-id="BOOK_IT_SIDEBAR"] ._tyxjp1')) || (await page.$('[data-section-id="BOOK_IT_SIDEBAR"] ._1y74zjx'));
   if (!priceString) {
-    await page.click('[data-section-id="BOOK_IT_SIDEBAR"] button');
-    await page.waitForTimeout(2000 * multiplier);
-    await page.click('[data-testid="bookit-sidebar-availability-calendar"] td[aria-disabled="false"]');
-    await page.waitForTimeout(1000 * multiplier);
-    await page.click('[data-testid="bookit-sidebar-availability-calendar"] td[aria-disabled="false"]');
-    await page.waitForTimeout(2000 * multiplier);
+    try {
+      await page.click('[data-section-id="BOOK_IT_SIDEBAR"] button');
+      await page.waitForTimeout(3000 * multiplier);
+      await page.click('[data-testid="bookit-sidebar-availability-calendar"] td[aria-disabled="false"]');
+      await page.waitForTimeout(1000 * multiplier);
+      await page.click('[data-testid="bookit-sidebar-availability-calendar"] td[aria-disabled="false"]');
+      await page.waitForTimeout(2000 * multiplier);
+    } catch (e) {
+      console.log(e);
+    }
   }
   if (currency && parsedCurrency) {
     const languageButton = await page.$("._ar9stc > div:last-child > div > span:last-child");

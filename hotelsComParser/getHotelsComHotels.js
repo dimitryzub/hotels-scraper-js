@@ -216,7 +216,12 @@ const getHotelsComHotels = async (
   const { page, closeBrowser } = await getBrowserInstance();
 
   await page.goto(url);
-  await page.waitForSelector('[data-stid="destination_form_field-menu-trigger"]');
+  try {
+    await page.waitForSelector('[data-stid="destination_form_field-menu-trigger"]');
+  } catch (e) {
+    await page.goto(url);
+    await page.waitForSelector('[data-stid="destination_form_field-menu-trigger"]');
+  }
 
   if (country) {
     await page.click('[data-stid="button-type-picker-trigger"]');
@@ -251,7 +256,7 @@ const getHotelsComHotels = async (
     }
     await page.click(`[data-stid="date-picker-month"] [data-day="${checkInDateArray[2]}"]`);
     await page.waitForTimeout(1000 * multiplier);
-    for (let i = 0; i < checkOutMonthAfterNow; i++) {
+    for (let i = 0; i < checkOutMonthAfterNow - checkInMonthAfterNow; i++) {
       await page.click('[data-stid="date-picker-paging"]:last-child');
       await page.waitForTimeout(1000 * multiplier);
     }
