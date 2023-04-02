@@ -551,3 +551,9 @@ great shower/pressure and the bed super comfortable. The Wi-Fi was also excellen
 ```
 
 </details>
+
+## Known problems
+
+- if you can't open any sites from this parser in your browser (probably your IP address is blocked) you can't get a results from this parser;
+- sometimes Hotels.com does not load the place input field (which happens in the usual browser too), so it can crash. You need to wait time;
+- parsed sites often change their structure or selectors, so from time to time one of the scraping fields can't be gotten (sometimes the parser can crash). Please [open an issue](https://github.com/dimitryzub/hotels-scraper-js/issues/new) with your problem.

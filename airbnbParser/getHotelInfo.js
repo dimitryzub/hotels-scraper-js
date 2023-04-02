@@ -5,7 +5,9 @@ let multiplier = 1;
 
 const scrollPage = async (page, reviewsLimit) => {
   const getHeight = async () =>
-    await page.evaluate(`document.querySelector('[data-testid="modal-container"] ${reviewsLimit ? "._17itzz4" : "._10toigd"}').scrollHeight`);
+    await page.evaluate(
+      `document.querySelector('[data-testid="modal-container"] ${reviewsLimit ? "._17itzz4" : "section [role] > div:last-child"}').scrollHeight`
+    );
   const getResultsLength = async () => Array.from(await page.$$('[data-testid="modal-container"] .r1are2x1'))?.length;
   let lastHeight = await getHeight();
   let resultsLength = await getResultsLength();
@@ -31,11 +33,11 @@ const scrollPage = async (page, reviewsLimit) => {
 
 const getHotelInfo = async (page) => {
   return await page.evaluate(() => {
-    const priceString = (
+    const priceSelector =
       document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] ._tyxjp1') ||
-      document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] ._1y74zjx')
-    )?.textContent.trim();
-    const currency = priceString.replace(/[\d|,|.]+/gm, "").replace(/\s/gm, "");
+      document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] ._1y74zjx');
+    const priceString = priceSelector?.textContent.trim();
+    const currency = priceString?.replace(/[\d|,|.]+/gm, "").replace(/\s/gm, "");
     return {
       name: document.querySelector("h1")?.textContent.trim(),
       shortDescription: document.querySelector("h2")?.textContent.trim(),
@@ -48,7 +50,11 @@ const getHotelInfo = async (page) => {
       })),
       price: {
         currency,
-        perNight: parseFloat(priceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
+        amount: parseFloat(priceString?.match(/[\d|,|.]+/gm)[0].replace(",", "")),
+        period: priceSelector?.parentElement.querySelector("span:nth-child(2)")
+          ? priceSelector?.parentElement.querySelector("span:nth-child(2)")?.textContent.trim()
+          : document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] div > button').getAttribute("aria-label").split(";")[1].trim() +
+            document.querySelector('[data-section-id="BOOK_IT_SIDEBAR"] div > button').getAttribute("aria-label").split(";")[2],
       },
       description: document.querySelector('[data-section-id="DESCRIPTION_DEFAULT"] .ll4r2nl')?.textContent.trim(),
       sleepOptions: Array.from(document.querySelectorAll('[data-section-id="SLEEPING_ARRANGEMENT_DEFAULT"] ._c991cpe')).map((el) => ({
@@ -62,10 +68,9 @@ const getHotelInfo = async (page) => {
         overview: Array.from(document.querySelectorAll('[data-section-id="HOST_PROFILE_DEFAULT"] .tpa8qb9 > div > span:last-child')).map((el) =>
           el.textContent.trim()
         ),
-        responseInfo: {
-          responseRate: Array.from(document.querySelectorAll('[data-section-id="HOST_PROFILE_DEFAULT"] .f19phm7j span'))[0]?.textContent.trim(),
-          responseTime: Array.from(document.querySelectorAll('[data-section-id="HOST_PROFILE_DEFAULT"] .f19phm7j span'))[1]?.textContent.trim(),
-        },
+        additionalInfo: Array.from(document.querySelectorAll('[data-section-id="HOST_PROFILE_DEFAULT"] .f19phm7j')).map((el) =>
+          el.textContent.trim()
+        ),
       },
     };
   });
@@ -91,18 +96,30 @@ const getAirbnbHotelInfo = async (multiplierArgument, link, currency, reviewsLim
     await page.click('[data-testid="modal-container"] [aria-label="Close"]');
     await page.waitForTimeout(2000 * multiplier);
   }
-  if (currency && parsedCurrency) {
-    const languageButton = Array.from(await page.$$("._ar9stc ._19c5bku"))[1];
-    await languageButton.click();
+  const priceString =
+    (await page.$('[data-section-id="BOOK_IT_SIDEBAR"] ._tyxjp1')) || (await page.$('[data-section-id="BOOK_IT_SIDEBAR"] ._1y74zjx'));
+  if (!priceString) {
+    await page.click('[data-section-id="BOOK_IT_SIDEBAR"] button');
     await page.waitForTimeout(2000 * multiplier);
-    await page.waitForSelector("._obr3yz");
-    const selectedCurrencyIndex = await page.evaluate((currency) => {
-      const allCurrencies = Array.from(document.querySelectorAll("._obr3yz"));
-      return allCurrencies.findIndex((el) => el.querySelector("div:last-child").textContent.toLowerCase().includes(currency.toLowerCase()));
-    }, parsedCurrency.value);
-    await page.click(`._obr3yz:nth-child(${selectedCurrencyIndex + 1})`);
-    await page.waitForTimeout(3000 * multiplier);
-    await page.waitForSelector("#site-content");
+    await page.click('[data-testid="bookit-sidebar-availability-calendar"] td[aria-disabled="false"]');
+    await page.waitForTimeout(1000 * multiplier);
+    await page.click('[data-testid="bookit-sidebar-availability-calendar"] td[aria-disabled="false"]');
+    await page.waitForTimeout(2000 * multiplier);
+  }
+  if (currency && parsedCurrency) {
+    const languageButton = await page.$("._ar9stc > div:last-child > div > span:last-child");
+    if (languageButton) {
+      await languageButton.click();
+      await page.waitForTimeout(2000 * multiplier);
+      await page.waitForSelector("._obr3yz");
+      const selectedCurrencyIndex = await page.evaluate((currency) => {
+        const allCurrencies = Array.from(document.querySelectorAll("._obr3yz"));
+        return allCurrencies.findIndex((el) => el.querySelector("div:last-child").textContent.toLowerCase().includes(currency.toLowerCase()));
+      }, parsedCurrency.value);
+      await page.click(`._obr3yz:nth-child(${selectedCurrencyIndex + 1})`);
+      await page.waitForTimeout(3000 * multiplier);
+      await page.waitForSelector("#site-content");
+    }
   }
   await page.waitForTimeout(3000 * multiplier);
 
@@ -114,7 +131,9 @@ const getAirbnbHotelInfo = async (multiplierArgument, link, currency, reviewsLim
   await page.click('[data-section-id="AMENITIES_DEFAULT"] button');
   await page.waitForTimeout(3000 * multiplier);
   hotelInfo.placeOffers = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('[data-testid="modal-container"] ._gw4xx4')).map((el) => el.textContent.trim())
+    Array.from(document.querySelectorAll('[data-testid="modal-container"] .dir-ltr[id]'))
+      .map((el) => (el.id.includes("row-title") ? el.textContent.trim() : null))
+      .filter((el) => el)
   );
   await page.click('[data-testid="modal-container"] [aria-label="Close"]');
   await page.waitForTimeout(1000 * multiplier);
@@ -157,7 +176,6 @@ const getAirbnbHotelInfo = async (multiplierArgument, link, currency, reviewsLim
     await scrollPage(page, reviewsLimit);
     hotelInfo.reviewsInfo = await page.evaluate(() => {
       const ratingArray = document.querySelector('[data-testid="modal-container"] h2').textContent.trim().split(/\s/);
-      console.log(ratingArray);
       return {
         totalReviews: parseInt(ratingArray[2]),
         rating: {

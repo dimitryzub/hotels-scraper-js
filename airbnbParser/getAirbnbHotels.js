@@ -24,29 +24,35 @@ const scrollPage = async (page, resultsLimit) => {
   }
 };
 
-const getHotelsInfo = async (page, checkIn, checkOut) => {
+const getHotelsInfo = async (page, checkIn, checkOut, isLocation) => {
   return await page.evaluate(
-    (checkIn, checkOut) => {
+    (checkIn, checkOut, isLocation) => {
       return Array.from(document.querySelectorAll('#site-content [itemprop="itemListElement"]')).map((el) => {
-        const priceString = el
-          .querySelector('[data-testid="listing-card-subtitle"]+div+div span > span:not([class="_1ks8cgb"])')
-          .textContent.trim()
-          .split(", ")[0];
+        const priceString = isLocation
+          ? el
+              .querySelector('[data-testid="listing-card-subtitle"]+div+div+div span > span:not([class="_1ks8cgb"])')
+              .textContent.trim()
+              .split(", ")[0]
+          : el.querySelector('[data-testid="listing-card-subtitle"]+div+div span > span:not([class="_1ks8cgb"])').textContent.trim().split(", ")[0];
         const rawLink = el.querySelector("a").getAttribute("href");
         const link = `https://www.airbnb.com${rawLink.slice(0, rawLink.indexOf("?"))}`;
         return {
           thumbnail: el.querySelector("picture img").getAttribute("data-original-uri"),
           title: el.querySelector('[data-testid="listing-card-title"]').textContent.trim(),
-          subtitles: Array.from(el.querySelectorAll('[data-testid="listing-card-subtitle"] > span')).map((el) => el.textContent.trim()),
+          subtitles: Array.from(el.querySelectorAll('[data-testid="listing-card-subtitle"] > span')).map((el) =>
+            el.textContent.replace(",&nbsp;", "").replace("·", "").trim()
+          ),
           dates: checkIn ? `${checkIn} - ${checkOut}` : undefined,
           price: {
             currency: priceString
+              .replace(" total before taxes", "")
               .replace(" per night", "")
+              .replace(" per month", "")
               .replace(" month", "")
               .replace(/[\d|,|.]+/gm, "")
               .replace(/\s/gm, ""),
             value: parseFloat(priceString.match(/[\d|,|.]+/gm)[0].replace(",", "")),
-            period: priceString.includes("night") ? "night" : "month",
+            period: priceString.includes("night") ? "night" : priceString.includes("total") ? "selected dates" : "month",
           },
           rating: parseFloat(el.querySelector("span[aria-label]")?.getAttribute("aria-label")) || "No rating",
           link,
@@ -54,7 +60,8 @@ const getHotelsInfo = async (page, checkIn, checkOut) => {
       });
     },
     checkIn,
-    checkOut
+    checkOut,
+    isLocation
   );
 };
 
@@ -169,7 +176,7 @@ const getAirbnbHotels = async (multiplierArgument, category, currency, limit, lo
 
   if (location) {
     while (true) {
-      results.push(...(await getHotelsInfo(page, checkIn, checkOut, location)));
+      results.push(...(await getHotelsInfo(page, checkIn, checkOut, Boolean(location))));
       const nextPageButton = await page.$('[aria-label="Next"]:not([disabled])');
       if (!nextPageButton || results.length >= resultsLimit) break;
       await nextPageButton.click();
@@ -180,7 +187,7 @@ const getAirbnbHotels = async (multiplierArgument, category, currency, limit, lo
   } else {
     await scrollPage(page, resultsLimit);
 
-    results.push(...(await getHotelsInfo(page, checkIn, checkOut, location)));
+    results.push(...(await getHotelsInfo(page, checkIn, checkOut, Boolean(location))));
   }
 
   await closeBrowser();
