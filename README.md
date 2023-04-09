@@ -10,7 +10,7 @@
 
 # 🏨Hotels Scraper
 
-Parser for website hotels, all from the single package, in JavaScript. Sponsored by [SerpApi](https://serpapi.com/).
+Parser for website hotels, all from the single package, in JavaScript.
 
 Currently supports:
 
