@@ -1,6 +1,3 @@
-# hotels-scraper-js
-Parser for Airbnb, Booking, Hotels.com in JavaScript. Sponsored by SerpApi.
-
 <div align="center">
 <p>Sponsor of the project:</p>
 <div>
