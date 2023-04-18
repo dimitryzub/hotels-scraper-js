@@ -24,7 +24,7 @@ Currently supports:
 - [Booking](https://www.booking.com/)
 - [Hotels.com](https://hotels.com/)
 
-If you need more advanced usage, have a look at blog post: https://serpapi.com/blog/javascript-hotels-parser/#advanced_examples
+If you need more advanced usage, have a look at blog post at SerpApi: [JavaScript Hotels parser: advanced examples](https://serpapi.com/blog/javascript-hotels-parser/#advanced_examples).
 
 ## Install
 
